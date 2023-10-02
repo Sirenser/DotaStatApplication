@@ -10,7 +10,6 @@ import com.example.dotastatapplication.databinding.AuthorizationFragmentBinding
 
 class AuthorizationFragment : Fragment(R.layout.authorization_fragment) {
 
-
     private val viewModel: AuthorizationViewModel
             by viewModels(factoryProducer = ::AuthorizationViewModelFactory)
 

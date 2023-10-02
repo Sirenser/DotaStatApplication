@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">DotaStatApplication</string>
+    <string name="dota">Dota 2</string>
+    <string name="search_title">profile name</string>
+    <string name="auth_error_title">Ничего не найдено</string>
+    <string name="auth_error_message">Попробуйте ввести другой id</string>
+    <string name="auth_connection_error_title">Что-то пошло не так</string>
+    <string name="auth_connection_error_message">Проверьте соединение с интернетом</string>
+    <string name="button_refresh">Обновить</string>
+    <string name="random_nick">Самый длинный никнейм</string>
 </resources>
