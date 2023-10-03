@@ -1,5 +1,6 @@
 package com.example.dotastatapplication.authorization.data.di
 
+import com.example.dotastatapplication.authorization.data.api.AuthDotaApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -13,13 +14,13 @@ import javax.inject.Singleton
 class AuthNetworkModule {
 
     @Provides
-    @Singleton
     fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder().build()
+        return OkHttpClient.Builder()
+            .build()
     }
 
-    @Provides
     @Singleton
+    @Provides
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         val contentType = "application/json".toMediaType()
 
@@ -28,6 +29,12 @@ class AuthNetworkModule {
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .build()
+    }
+
+    @Singleton
+    @Provides
+    internal fun provideAuthDotaApi(retrofit: Retrofit): AuthDotaApi {
+        return retrofit.create(AuthDotaApi::class.java)
     }
 
 }
