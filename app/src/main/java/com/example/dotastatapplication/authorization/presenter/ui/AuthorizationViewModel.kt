@@ -33,4 +33,9 @@ class AuthorizationViewModel @Inject constructor(
             }
         }
     }
+
+    fun saveAccountId(accountId: Int) {
+        //TODO Вызов usecase для сохранения id аккаунта в datastore preferenses
+    }
+
 }

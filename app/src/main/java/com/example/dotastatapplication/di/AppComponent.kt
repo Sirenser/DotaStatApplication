@@ -8,6 +8,7 @@ import com.example.dotastatapplication.authorization.data.di.AuthBindModule
 import com.example.dotastatapplication.authorization.data.di.AuthNetworkModule
 import com.example.dotastatapplication.authorization.presenter.ui.AuthorizationFragment
 import com.example.dotastatapplication.authorization.presenter.ui.AuthorizationViewModel
+import com.example.dotastatapplication.onboarding.presenter.ui.OnboardingFragment
 import dagger.Component
 import javax.inject.Singleton
 
@@ -17,6 +18,9 @@ interface AppComponent {
     fun inject(authorizationFragment: AuthorizationFragment)
 
     fun authViewModel(): AuthorizationViewModel
+
+    fun inject(onboardingFragment: OnboardingFragment)
+
     fun inject(mainActivity: MainActivity)
 }
 

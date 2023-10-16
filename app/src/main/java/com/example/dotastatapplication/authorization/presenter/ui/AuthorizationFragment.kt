@@ -8,6 +8,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.dotastatapplication.R
 import com.example.dotastatapplication.authorization.presenter.item.AccountSearchItem
 import com.example.dotastatapplication.authorization.utils.ContentViewState
@@ -57,12 +58,10 @@ class AuthorizationFragment : Fragment(R.layout.authorization_fragment) {
         lifecycleScope.launch {
             viewModel.accountInfoStateFlow.collectLatest { state ->
                 with(binding) {
-                    authLoadingPb.isVisible =
-                        state is ContentViewState.Loading
+                    authLoadingPb.isVisible = state is ContentViewState.Loading
                     rvAccountList.isVisible =
                         (state is ContentViewState.Success && state.data.isNotEmpty())
-                    errorConnection.root.isVisible =
-                        state is ContentViewState.FailureConnection
+                    errorConnection.root.isVisible = state is ContentViewState.FailureConnection
                     errorView.root.isVisible =
                         (state is ContentViewState.Success && state.data.isEmpty())
 
@@ -75,7 +74,12 @@ class AuthorizationFragment : Fragment(R.layout.authorization_fragment) {
                     } else if (state is ContentViewState.Success && state.data.isNotEmpty()) {
                         adapter.clear()
                         state.data.forEach { accountInfoUI ->
-                            adapter.add(AccountSearchItem(accountInfoUI))
+                            adapter.add(AccountSearchItem(accountInfoUI) {
+                                viewModel.saveAccountId(accountId = accountInfoUI.accountId)
+                                findNavController().navigate(
+                                    R.id.action_authorizationFragment_to_onboardingFragment
+                                )
+                            })
                         }
                     }
                 }

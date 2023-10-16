@@ -9,5 +9,14 @@
         android:id="@+id/authorizationFragment"
         android:name="com.example.dotastatapplication.authorization.presenter.ui.AuthorizationFragment"
         android:label="authorization_fragment"
-        tools:layout="@layout/authorization_fragment" />
+        tools:layout="@layout/authorization_fragment" >
+        <action
+            android:id="@+id/action_authorizationFragment_to_onboardingFragment"
+            app:destination="@id/onboardingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="com.example.dotastatapplication.onboarding.presenter.ui.OnboardingFragment"
+        android:label="fragment_onboarding"
+        tools:layout="@layout/fragment_onboarding" />
 </navigation>

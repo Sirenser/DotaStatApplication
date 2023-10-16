@@ -12,7 +12,8 @@ data class AccountInfo(
 fun AccountInfo.toUI(): AccountInfoUI {
     return AccountInfoUI(
         personName = personName,
-        avatarFull = avatarFull
+        avatarFull = avatarFull,
+        accountId = accountId
     )
 }
 
