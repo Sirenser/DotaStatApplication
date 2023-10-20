@@ -8,9 +8,7 @@ import com.example.dotastatapplication.di.DaggerAppComponent
 class DotaStatApplication : Application() {
 
     val appComponent: AppComponent by lazy {
-        DaggerAppComponent.builder()
-            .authNetworkModule(AuthNetworkModule(context = this))
-            .build()
+        DaggerAppComponent.builder().authNetworkModule(AuthNetworkModule(context = this)).build()
     }
 
 }

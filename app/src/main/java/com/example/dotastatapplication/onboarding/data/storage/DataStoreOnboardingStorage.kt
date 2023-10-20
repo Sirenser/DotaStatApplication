@@ -9,16 +9,14 @@ import javax.inject.Inject
 
 private const val SHARED_PREFS_NAME = "shared_prefs_name"
 
-
 class DataStoreOnboardingStorage @Inject constructor(private val context: Context) :
-    OnboardedStorage, PreferencesKeys() {
-
+    OnboardedStorage {
     override suspend fun setIsOnboarded() {
         context.dataStore.edit { preferences ->
-            preferences[keyOnboarded] = true
+            preferences[PreferencesKeys.keyOnboarded] = true
+            println("IsOnboarded in storage sets = ${preferences[PreferencesKeys.keyOnboarded]}")
         }
     }
-
 }
 
 val Context.dataStore by preferencesDataStore(name = SHARED_PREFS_NAME)

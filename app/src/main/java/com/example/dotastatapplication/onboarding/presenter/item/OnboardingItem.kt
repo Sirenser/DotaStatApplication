@@ -9,10 +9,11 @@ import com.xwray.groupie.viewbinding.BindableItem
 
 class OnboardingItem(private val onboardingModel: OnboardingModel) :
     BindableItem<ItemOnboardingBinding>() {
+
     override fun bind(binding: ItemOnboardingBinding, position: Int) {
         binding.imageOnboardingItem.load(onboardingModel.onboardingImage)
-        binding.textTitle.text = onboardingModel.title
-        binding.textDescription.text = onboardingModel.description
+        binding.textTitle.text = binding.root.resources.getText(onboardingModel.title)
+        binding.textDescription.text = binding.root.resources.getText(onboardingModel.description)
     }
 
     override fun getLayout(): Int = R.layout.item_onboarding

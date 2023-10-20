@@ -10,7 +10,7 @@ import com.xwray.groupie.viewbinding.BindableItem
 
 class AccountSearchItem(
     private val accountInfo: AccountInfoUI,
-    private val onAccountInfoCLicked: (accountId: Int) -> Unit
+    private val onAccountInfoCLicked: (Int) -> Unit
 ) :
     BindableItem<ItemAccountSearchBinding>() {
     override fun bind(binding: ItemAccountSearchBinding, position: Int) {

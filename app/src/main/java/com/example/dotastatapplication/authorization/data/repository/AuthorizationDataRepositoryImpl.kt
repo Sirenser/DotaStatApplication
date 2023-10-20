@@ -16,5 +16,4 @@ class AuthorizationDataRepositoryImpl @Inject constructor(private val storage: A
         return storage.isOnboarded()
     }
 
-
 }

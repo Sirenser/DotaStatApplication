@@ -3,10 +3,10 @@ package com.example.dotastatapplication.authorization.presenter.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dotastatapplication.authorization.domain.model.toUI
+import com.example.dotastatapplication.authorization.domain.repository.AuthorizationDataRepository
 import com.example.dotastatapplication.authorization.domain.usecase.GetAccountInfoUseCase
-import com.example.dotastatapplication.authorization.domain.usecase.IsOnboardedUseCase
-import com.example.dotastatapplication.authorization.domain.usecase.SaveAccountInfoUseCase
 import com.example.dotastatapplication.authorization.utils.ContentViewState
+import com.example.dotastatapplication.utils.NavigationDestination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -16,8 +16,7 @@ import javax.inject.Inject
 
 class AuthorizationViewModel @Inject constructor(
     private val getAccountUseCase: GetAccountInfoUseCase,
-    private val saveAccountInfoUseCase: SaveAccountInfoUseCase,
-    private val isOnboardedUseCase: IsOnboardedUseCase
+    private val dataRepository: AuthorizationDataRepository
 ) : ViewModel() {
 
     private val _accountInfoStateFlow: MutableStateFlow<ContentViewState> =
@@ -45,14 +44,13 @@ class AuthorizationViewModel @Inject constructor(
 
     fun saveAccountId(accountId: Int) {
         viewModelScope.launch {
-            saveAccountInfoUseCase.execute(accountId)
-            if (isOnboarded()) {
-                _destinationStateFlow.value = NavigationDestination.TO_OVERVIEW
-                println("Destination changed to overview")
+            dataRepository.saveAccount(accountId)
+            val navDestination = if (isOnboarded()) {
+                NavigationDestination.TO_OVERVIEW
             } else {
-                _destinationStateFlow.value = NavigationDestination.TO_ONBOARDING
-                println("Destination changed to onboarding")
+                NavigationDestination.TO_ONBOARDING
             }
+            _destinationStateFlow.value = navDestination
         }
     }
 
@@ -64,7 +62,7 @@ class AuthorizationViewModel @Inject constructor(
         println("isOnboarded started")
         var result = false
         viewModelScope.launch {
-            isOnboardedUseCase.execute().catch {
+            dataRepository.isOnboarded().catch {
                 result = false
             }.collect { isOnboarded ->
                 result = isOnboarded
@@ -72,11 +70,5 @@ class AuthorizationViewModel @Inject constructor(
         }
         return result
     }
-
-}
-
-enum class NavigationDestination {
-
-    STAY, TO_OVERVIEW, TO_ONBOARDING
 
 }

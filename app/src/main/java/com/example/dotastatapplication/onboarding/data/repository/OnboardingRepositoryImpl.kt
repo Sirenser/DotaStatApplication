@@ -8,7 +8,6 @@ import javax.inject.Inject
 
 class OnboardingRepositoryImpl @Inject constructor(private val storage: OnboardedStorage) :
     OnboardingRepository {
-
     override suspend fun setOnboarded() {
         storage.setIsOnboarded()
     }

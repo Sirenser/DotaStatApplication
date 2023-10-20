@@ -8,8 +8,8 @@
     tools:context=".onboarding.presenter.ui.OnboardingFragment">
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/vp_onboarding"
-        android:layout_width="match_parent"
+        android:id="@+id/onboarding_items_view_pager"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/onboarding_button_next"
         app:layout_constraintEnd_toEndOf="parent"
@@ -18,20 +18,20 @@
 
     <ImageButton
         android:id="@+id/icon_skip"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         android:background="@color/primary_background"
-        android:contentDescription="@string/skip_onboarding"
         android:src="@drawable/icon_close"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/onboarding_button_next"
         style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="80dp"
@@ -40,14 +40,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/vp_onboarding" />
+        app:layout_constraintTop_toBottomOf="@id/onboarding_items_view_pager" />
 
     <LinearLayout
         android:id="@+id/indicators_container"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:orientation="horizontal"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -8,17 +8,14 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.dotastatapplication.R
 import com.example.dotastatapplication.databinding.FragmentOnboardingBinding
 import com.example.dotastatapplication.di.getAppComponent
 import com.example.dotastatapplication.onboarding.presenter.item.OnboardingItem
-import com.example.dotastatapplication.onboarding.presenter.models.OnboardingModel
 import com.example.dotastatapplication.utils.BaseViewModelFactory
 import com.example.dotastatapplication.utils.viewBinding
 import com.xwray.groupie.GroupieAdapter
-import kotlinx.coroutines.launch
 
 
 class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
@@ -45,107 +42,73 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
         setupCurrentIndicator(0)
     }
 
-    private fun setupView() {
-        with(binding) {
-            vpOnboarding.apply {
-                adapter = itemAdapter
-                registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                    override fun onPageSelected(position: Int) {
-                        super.onPageSelected(position)
-                        setupCurrentIndicator(position)
-                    }
-                })
-            }
-            onboardingButtonNext.setOnClickListener {
-                if (vpOnboarding.currentItem + 1 < itemAdapter.itemCount) {
-                    vpOnboarding.currentItem += 1
+    private fun setupView() = with(binding) {
+        onboardingItemsViewPager.apply {
+            adapter = itemAdapter
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    setupCurrentIndicator(position)
                 }
-                if (vpOnboarding.currentItem <= itemAdapter.itemCount) {
-                    lifecycleScope.launch {
-                        viewModel.setOnboarded()
-                    }
-                    //TODO выполнить навигацию в овервью
-                }
-            }
-            iconSkip.setOnClickListener {
-                lifecycleScope.launch {
-                    viewModel.setOnboarded()
-                }
+            })
+        }
+        onboardingButtonNext.setOnClickListener {
+            if (onboardingItemsViewPager.currentItem + 1 < itemAdapter.itemCount) {
+                onboardingItemsViewPager.currentItem += 1
+            } else {
+                viewModel.onSkipOrLastItemClicked()
                 //TODO выполнить навигацию в овервью
             }
-
+        }
+        iconSkip.setOnClickListener {
+            viewModel.onSkipOrLastItemClicked()
+            //TODO выполнить навигацию в овервью
         }
     }
+
 
     //Выполняется динамическая установка индикаторов, в зависимости от их количества
     private fun setupIndicators() {
         val layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         layoutParams.setMargins(12, 0, 12, 0)
-        for (i in 0 until itemAdapter.itemCount) {
-            val indicator = ImageView(context)
-            indicator.let {
-                it.setImageDrawable(
+        repeat(itemAdapter.itemCount) {
+            val indicatorView = ImageView(context)
+            indicatorView.apply {
+                this.setImageDrawable(
                     ContextCompat.getDrawable(
                         requireContext(), R.drawable.indicator_onboarding
                     )
                 )
-                it.layoutParams = layoutParams
-                binding.indicatorsContainer.addView(it)
+                this.layoutParams = layoutParams
+
             }
+            binding.indicatorsContainer.addView(indicatorView)
         }
     }
 
     //Выполняется установка текущего индикатора, в зависимости от положения в списке
     private fun setupCurrentIndicator(position: Int) {
         val childCount = binding.indicatorsContainer.childCount
-        for (i in 0 until childCount) {
-            val imageView = binding.indicatorsContainer.getChildAt(i) as ImageView
-            if (i == position) {
-                imageView.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        requireContext(), R.drawable.indicator_onboarding_activated
-                    )
+        repeat(childCount) { indicatorNumber ->
+            val imageView = binding.indicatorsContainer.getChildAt(indicatorNumber) as ImageView
+            val indicatorDrawable = if (indicatorNumber == position) {
+                ContextCompat.getDrawable(
+                    requireContext(), R.drawable.indicator_onboarding_activated
                 )
             } else {
-                imageView.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        requireContext(), R.drawable.indicator_onboarding
-                    )
+                ContextCompat.getDrawable(
+                    requireContext(), R.drawable.indicator_onboarding
                 )
             }
+            imageView.setImageDrawable(indicatorDrawable)
         }
     }
 
     private fun setupOnboardingItems() {
-        val models = setupOnboardingModels()
-        val result = mutableListOf<OnboardingItem>()
-        for (i in models.indices) {
-            result.add(OnboardingItem(models[i]))
-        }
-        itemAdapter.update(result)
+        val onboardingItems = viewModel.setupOnboardingModels().map {
+            OnboardingItem(it)
+       }
+        itemAdapter.update(onboardingItems)
     }
-
-    private fun setupOnboardingModels(): List<OnboardingModel> = listOf(
-        OnboardingModel(
-            onboardingImage = R.drawable.icon_dota,
-            title = getString(R.string.onboaring_title_1),
-            description = getString(R.string.onboaring_description_1)
-        ),
-        OnboardingModel(
-            onboardingImage = R.drawable.icon_dota,
-            title = getString(R.string.onboaring_title_2),
-            description = getString(R.string.onboaring_description_2)
-        ),
-        OnboardingModel(
-            onboardingImage = R.drawable.icon_dota,
-            title = getString(R.string.onboaring_title_3),
-            description = getString(R.string.onboaring_description_3)
-        ),
-        OnboardingModel(
-            onboardingImage = R.drawable.icon_dota,
-            title = getString(R.string.onboaring_title_4),
-            description = getString(R.string.onboaring_description_4)
-        ),
-    )
-
 }
+

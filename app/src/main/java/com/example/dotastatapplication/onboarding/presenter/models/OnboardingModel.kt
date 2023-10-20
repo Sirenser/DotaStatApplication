@@ -1,7 +1,10 @@
 package com.example.dotastatapplication.onboarding.presenter.models
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+
 data class OnboardingModel(
-    val onboardingImage: Int,
-    val title: String,
-    val description: String
+    @DrawableRes val onboardingImage: Int,
+    @StringRes val title: Int,
+    @StringRes val description: Int
 )
