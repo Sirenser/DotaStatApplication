@@ -7,14 +7,18 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.dotastatapplication.R
 import com.example.dotastatapplication.databinding.FragmentOnboardingBinding
 import com.example.dotastatapplication.di.getAppComponent
 import com.example.dotastatapplication.onboarding.presenter.item.OnboardingItem
 import com.example.dotastatapplication.onboarding.presenter.models.OnboardingModel
+import com.example.dotastatapplication.utils.BaseViewModelFactory
 import com.example.dotastatapplication.utils.viewBinding
 import com.xwray.groupie.GroupieAdapter
+import kotlinx.coroutines.launch
 
 
 class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
@@ -22,13 +26,20 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
 
     private val binding: FragmentOnboardingBinding by viewBinding()
 
-    private val adapter by lazy {
+    private val viewModel: OnboardingViewModel by viewModels {
+        BaseViewModelFactory {
+            getAppComponent().onboardingViewModel()
+        }
+    }
+
+    private val itemAdapter by lazy {
         GroupieAdapter()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         getAppComponent().inject(this)
+        setupOnboardingItems()
         setupView()
         setupIndicators()
         setupCurrentIndicator(0)
@@ -36,23 +47,31 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
 
     private fun setupView() {
         with(binding) {
-            adapter.addAll(setupOnboardingItems(setupOnboardingModels()))
-            vpOnboarding.adapter = adapter
-            vpOnboarding.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    super.onPageSelected(position)
-                    setupCurrentIndicator(position)
-                }
-            })
+            vpOnboarding.apply {
+                adapter = itemAdapter
+                registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                    override fun onPageSelected(position: Int) {
+                        super.onPageSelected(position)
+                        setupCurrentIndicator(position)
+                    }
+                })
+            }
             onboardingButtonNext.setOnClickListener {
-                if (vpOnboarding.currentItem + 1 < adapter.itemCount) {
+                if (vpOnboarding.currentItem + 1 < itemAdapter.itemCount) {
                     vpOnboarding.currentItem += 1
-                } else if (vpOnboarding.currentItem == adapter.itemCount) {
-                    //TODO выполнить навигацию в овервью + сохранить информацию о прохождении онбординга
+                }
+                if (vpOnboarding.currentItem <= itemAdapter.itemCount) {
+                    lifecycleScope.launch {
+                        viewModel.setOnboarded()
+                    }
+                    //TODO выполнить навигацию в овервью
                 }
             }
             iconSkip.setOnClickListener {
-                //TODO выполнить навигацию в овервью + сохранить информацию о прохождении онбординга
+                lifecycleScope.launch {
+                    viewModel.setOnboarded()
+                }
+                //TODO выполнить навигацию в овервью
             }
 
         }
@@ -60,20 +79,18 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
 
     //Выполняется динамическая установка индикаторов, в зависимости от их количества
     private fun setupIndicators() {
-        val indicators = arrayOfNulls<ImageView>(adapter.itemCount)
-
         val layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         layoutParams.setMargins(12, 0, 12, 0)
-        for (i in indicators.indices) {
-            indicators[i] = ImageView(context)
-            indicators[i]?.let { indicator ->
-                indicator.setImageDrawable(
+        for (i in 0 until itemAdapter.itemCount) {
+            val indicator = ImageView(context)
+            indicator.let {
+                it.setImageDrawable(
                     ContextCompat.getDrawable(
                         requireContext(), R.drawable.indicator_onboarding
                     )
                 )
-                indicator.layoutParams = layoutParams
-                binding.indicatorsContainer.addView(indicator)
+                it.layoutParams = layoutParams
+                binding.indicatorsContainer.addView(it)
             }
         }
     }
@@ -99,12 +116,13 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
         }
     }
 
-    private fun setupOnboardingItems(models: List<OnboardingModel>): List<OnboardingItem> {
+    private fun setupOnboardingItems() {
+        val models = setupOnboardingModels()
         val result = mutableListOf<OnboardingItem>()
         for (i in models.indices) {
             result.add(OnboardingItem(models[i]))
         }
-        return result
+        itemAdapter.update(result)
     }
 
     private fun setupOnboardingModels(): List<OnboardingModel> = listOf(

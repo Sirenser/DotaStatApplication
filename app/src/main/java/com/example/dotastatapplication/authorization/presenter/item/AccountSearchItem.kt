@@ -5,16 +5,18 @@ import coil.load
 import com.example.dotastatapplication.R
 import com.example.dotastatapplication.authorization.presenter.models.AccountInfoUI
 import com.example.dotastatapplication.databinding.ItemAccountSearchBinding
-import com.example.dotastatapplication.utils.OnClickedListener
 import com.xwray.groupie.viewbinding.BindableItem
 
 
-class AccountSearchItem(private val accountInfo: AccountInfoUI, private val listener: OnClickedListener) :
+class AccountSearchItem(
+    private val accountInfo: AccountInfoUI,
+    private val onAccountInfoCLicked: (accountId: Int) -> Unit
+) :
     BindableItem<ItemAccountSearchBinding>() {
     override fun bind(binding: ItemAccountSearchBinding, position: Int) {
         binding.itemSearchName.text = accountInfo.personName
         binding.itemSearchAvatar.load(accountInfo.avatarFull)
-        binding.root.setOnClickListener { listener.click() }
+        binding.root.setOnClickListener { onAccountInfoCLicked.invoke(accountInfo.accountId) }
     }
 
     override fun getLayout(): Int = R.layout.item_account_search

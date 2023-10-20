@@ -31,7 +31,7 @@ class AuthorizationFragment : Fragment(R.layout.authorization_fragment) {
 
     private val binding: AuthorizationFragmentBinding by viewBinding()
 
-    private val adapter by lazy {
+    private val itemAdapter by lazy {
         GroupieAdapter()
     }
 
@@ -44,7 +44,7 @@ class AuthorizationFragment : Fragment(R.layout.authorization_fragment) {
     private fun initView() {
         setContentByState()
         with(binding) {
-            rvAccountList.adapter = adapter
+            rvAccountList.adapter = itemAdapter
             authTextInput.addTextChangedListener { editableText ->
                 if (!editableText.isNullOrBlank()) viewModel.fetchAccount(editableText.toString())
             }
@@ -67,21 +67,33 @@ class AuthorizationFragment : Fragment(R.layout.authorization_fragment) {
 
                     if (state is ContentViewState.FailureConnection) {
                         Snackbar.make(
-                            binding.root,
+                            root,
                             requireContext().resources.getText(R.string.toast_error_connection),
                             Snackbar.LENGTH_SHORT
                         ).show()
-                    } else if (state is ContentViewState.Success && state.data.isNotEmpty()) {
-                        adapter.clear()
+                    }
+                    if (state is ContentViewState.Success && state.data.isNotEmpty()) {
+                        itemAdapter.clear()
                         state.data.forEach { accountInfoUI ->
-                            adapter.add(AccountSearchItem(accountInfoUI) {
-                                viewModel.saveAccountId(accountId = accountInfoUI.accountId)
-                                findNavController().navigate(
-                                    R.id.action_authorizationFragment_to_onboardingFragment
+                            itemAdapter.add(
+                                AccountSearchItem(
+                                    accountInfoUI, viewModel::saveAccountId
                                 )
-                            })
+                            )
                         }
                     }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            viewModel.destinationStateFlow.collectLatest { destination ->
+                if (destination == NavigationDestination.TO_ONBOARDING) {
+                    findNavController().navigate(R.id.action_authorizationFragment_to_onboardingFragment)
+                    viewModel.setDefaultDestination()
+                }
+                if (destination == NavigationDestination.TO_OVERVIEW) {
+                    //TODO навигация в овервью
+                    viewModel.setDefaultDestination()
                 }
             }
         }

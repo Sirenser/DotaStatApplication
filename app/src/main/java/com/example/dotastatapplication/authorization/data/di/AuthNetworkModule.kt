@@ -1,5 +1,6 @@
 package com.example.dotastatapplication.authorization.data.di
 
+import android.content.Context
 import com.example.dotastatapplication.authorization.data.api.AuthDotaApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -11,7 +12,7 @@ import retrofit2.Retrofit
 import javax.inject.Singleton
 
 @Module
-class AuthNetworkModule {
+class AuthNetworkModule(val context: Context) {
 
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
@@ -35,6 +36,11 @@ class AuthNetworkModule {
     @Provides
     internal fun provideAuthDotaApi(retrofit: Retrofit): AuthDotaApi {
         return retrofit.create(AuthDotaApi::class.java)
+    }
+
+    @Provides
+    fun provideContext(): Context {
+        return context
     }
 
 }

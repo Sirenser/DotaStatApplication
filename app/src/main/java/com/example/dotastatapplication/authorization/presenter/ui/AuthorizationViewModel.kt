@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dotastatapplication.authorization.domain.model.toUI
 import com.example.dotastatapplication.authorization.domain.usecase.GetAccountInfoUseCase
+import com.example.dotastatapplication.authorization.domain.usecase.IsOnboardedUseCase
+import com.example.dotastatapplication.authorization.domain.usecase.SaveAccountInfoUseCase
 import com.example.dotastatapplication.authorization.utils.ContentViewState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +15,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AuthorizationViewModel @Inject constructor(
-    private val useCase: GetAccountInfoUseCase,
+    private val getAccountUseCase: GetAccountInfoUseCase,
+    private val saveAccountInfoUseCase: SaveAccountInfoUseCase,
+    private val isOnboardedUseCase: IsOnboardedUseCase
 ) : ViewModel() {
 
     private val _accountInfoStateFlow: MutableStateFlow<ContentViewState> =
@@ -21,10 +25,15 @@ class AuthorizationViewModel @Inject constructor(
 
     val accountInfoStateFlow = _accountInfoStateFlow.asStateFlow()
 
+    private val _destinationStateFlow: MutableStateFlow<NavigationDestination> =
+        MutableStateFlow(NavigationDestination.STAY)
+
+    val destinationStateFlow = _destinationStateFlow.asStateFlow()
+
     fun fetchAccount(accountInfo: String) {
         _accountInfoStateFlow.value = ContentViewState.Loading
         viewModelScope.launch {
-            useCase.execute(accountInfo).catch {
+            getAccountUseCase.execute(accountInfo).catch {
                 _accountInfoStateFlow.value = ContentViewState.FailureConnection
             }.collectLatest { accounts ->
                 _accountInfoStateFlow.value = ContentViewState.Success(accounts.map {
@@ -35,7 +44,39 @@ class AuthorizationViewModel @Inject constructor(
     }
 
     fun saveAccountId(accountId: Int) {
-        //TODO Вызов usecase для сохранения id аккаунта в datastore preferenses
+        viewModelScope.launch {
+            saveAccountInfoUseCase.execute(accountId)
+            if (isOnboarded()) {
+                _destinationStateFlow.value = NavigationDestination.TO_OVERVIEW
+                println("Destination changed to overview")
+            } else {
+                _destinationStateFlow.value = NavigationDestination.TO_ONBOARDING
+                println("Destination changed to onboarding")
+            }
+        }
     }
+
+    fun setDefaultDestination() {
+        _destinationStateFlow.value = NavigationDestination.STAY
+    }
+
+    private fun isOnboarded(): Boolean {
+        println("isOnboarded started")
+        var result = false
+        viewModelScope.launch {
+            isOnboardedUseCase.execute().catch {
+                result = false
+            }.collect { isOnboarded ->
+                result = isOnboarded
+            }
+        }
+        return result
+    }
+
+}
+
+enum class NavigationDestination {
+
+    STAY, TO_OVERVIEW, TO_ONBOARDING
 
 }
