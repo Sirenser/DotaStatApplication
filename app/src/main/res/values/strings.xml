@@ -9,4 +9,13 @@
     <string name="refresh">Обновить</string>
     <string name="random_nick">Самый длинный никнейм</string>
     <string name="toast_error_connection">Упс, ошибка подключения!</string>
+    <string name="onboaring_matches_title">Матчи</string>
+    <string name="onboaring_heroes_title">Герои</string>
+    <string name="onboaring_statistic_title">Статистика</string>
+    <string name="onboaring_profile_title">Профиль</string>
+    <string name="onboaring_matches_description">Список своих матчей</string>
+    <string name="onboaring_heroes_description">Статистика по героям</string>
+    <string name="onboaring_statistic_description">Обзор общей информации по профилю</string>
+    <string name="onboaring_profile_description">Основная информация аккаунта</string>
+    <string name="next">Далее</string>
 </resources>

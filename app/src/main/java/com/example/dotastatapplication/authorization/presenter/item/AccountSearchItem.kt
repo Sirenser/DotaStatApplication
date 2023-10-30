@@ -8,11 +8,15 @@ import com.example.dotastatapplication.databinding.ItemAccountSearchBinding
 import com.xwray.groupie.viewbinding.BindableItem
 
 
-class AccountSearchItem(private val accountInfo: AccountInfoUI) :
+class AccountSearchItem(
+    private val accountInfo: AccountInfoUI,
+    private val onAccountInfoCLicked: (Int) -> Unit
+) :
     BindableItem<ItemAccountSearchBinding>() {
     override fun bind(binding: ItemAccountSearchBinding, position: Int) {
         binding.itemSearchName.text = accountInfo.personName
         binding.itemSearchAvatar.load(accountInfo.avatarFull)
+        binding.root.setOnClickListener { onAccountInfoCLicked.invoke(accountInfo.accountId) }
     }
 
     override fun getLayout(): Int = R.layout.item_account_search
